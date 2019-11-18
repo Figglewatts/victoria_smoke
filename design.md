@@ -11,7 +11,7 @@
 - Read templates and generate emails based on specs
 - Send each email through every cluster specified with unique from address based on spec (to identify Tx ID)
 - Wait a little bit
-- From log analytics, get transaction IDs for each email sent
+- From log analytics, get transaction IDs for each email sent using from address
 - Trace these transaction IDs through the system and report any fails
 - If any fails are detected, save failed templated specs to appdirs under directory with exec time and report to stdout
 

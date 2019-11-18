@@ -23,6 +23,7 @@ victoria-smoke = {editable = true,path = "."}
 click = "*"
 marshmallow = "*"
 victoria = {index = "sre",version = "*"}
+jinja2 = "*"
 
 [requires]
 python_version = "3.7"
