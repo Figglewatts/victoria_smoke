@@ -17,13 +17,19 @@ pytest-azurepipelines = "*"
 setuptools = "*"
 wheel = "*"
 twine = "*"
+keyring = "*"
+artifacts-keyring = "*"
 
 [packages]
+victoria = {index = "sre",version = "*"}
 victoria-smoke = {editable = true,path = "."}
 click = "*"
 marshmallow = "*"
-victoria = {index = "sre",version = "*"}
 jinja2 = "*"
+faker = "==2.0.4"
 
 [requires]
 python_version = "3.7"
+
+[pipenv]
+allow_prereleases = true
