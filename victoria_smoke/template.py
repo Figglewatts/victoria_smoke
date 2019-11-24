@@ -1,3 +1,4 @@
+from datetime import datetime
 import functools
 import random
 import types
@@ -47,7 +48,7 @@ def to_array(library) -> str:
 
 
 @template_env.filterfunc
-def collapse(iterable: Iterable, join="\n") -> str:
+def collapse(iterable: Iterable, join="\n  ") -> str:
     """Collapse an iterable to a single string."""
     return join.join(iterable)
 
@@ -127,10 +128,10 @@ def randomly_pick(library, count: int,
     return library.random_choice(count=count, seed=seed)
 
 
-def process(email_template: str) -> str:
+def process(email_template: str, attachment_library: AttachmentLibrary) -> str:
     template = template_env.from_string(email_template)
     fake = Faker()
     fake.add_provider(TextProvider)
-    print(
-        template.render(library=AttachmentLibrary(["victoria_smoke"]),
-                        fake=fake))
+    return template.render(library=attachment_library,
+                           fake=fake,
+                           datetime=datetime)

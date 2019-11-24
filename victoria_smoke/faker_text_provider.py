@@ -1,3 +1,10 @@
+"""faker_text_provider.py
+
+Implements a provider for Faker that can generate fake UTF-8 and ASCII text.
+
+Author:
+    Sam Gibson <sgibson@glasswallsolutions.com>
+"""
 import random
 
 from faker.providers import BaseProvider
@@ -47,16 +54,18 @@ UNICODE_RANGES = [(0x0020, 0x007F), (0x00A0, 0x00FF), (0x0100, 0x017F),
 
 
 class TextProvider(BaseProvider):
+    """A Faker Provider that can generate fake unicode and ascii."""
     def unicode(self, length: int):
+        """Generate fake unicode text of a given length."""
         # adapted from: https://stackoverflow.com/questions/1477294/generate-random-utf-8-string-in-python
         alphabet = [
             chr(code_point) for current_range in UNICODE_RANGES
             for code_point in range(current_range[0], current_range[1] + 1)
         ]
-        return ''.join(random.choice(alphabet) for i in range(length)).encode(
-            "utf-16", "surrogatepass").decode("utf-8", "surrogateescape")
+        return ''.join(random.choice(alphabet) for _ in range(length))
 
     def ascii(self, length: int):
+        """Generate fake ASCII text of a given length."""
         return bytes([
             b % 128 for b in [random.getrandbits(8) for _ in range(length)]
         ]).decode("ascii")

@@ -13,6 +13,8 @@ from os import path
 import random
 from typing import List, Callable, Union
 
+from . import util
+
 Attachment = namedtuple("Attachment", ["path", "size"])
 
 
@@ -58,11 +60,11 @@ class AttachmentLibrary:
         Args:
             library (str): The path to the library.
         """
-        for dirpath, _, filenames in os.walk(library):
-            for filename in filenames:
-                full_path = path.join(dirpath, filename)
-                file_size = path.getsize(full_path)
-                self.index.append(Attachment(full_path, file_size))
+        for entry in util.scantree(library):
+            if entry.is_file():
+                file_path = os.path.normpath(entry.path)
+                file_size = entry.stat().st_size
+                self.index.append(Attachment(file_path, file_size))
 
     def filter_func(self, filter_func: Callable[[Attachment], bool]
                     ) -> AttachmentLibrary:

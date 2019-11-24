@@ -1,0 +1,10 @@
+headers:
+  To: 
+    - "Sam Gibson <sgibson@glasswallsolutions.com>"
+  Date: "{{ datetime.now().isoformat() }}"
+  From: 
+    - "Sam Gibson <sgibson@glasswallsolutions.com>"
+  Subject: "Test email"
+body: {{ fake.paragraph(20) }}
+attach:
+{{ library | filetype("txt") | to_array }}

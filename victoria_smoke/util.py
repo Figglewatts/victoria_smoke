@@ -5,6 +5,7 @@ Various utility functions for the smoke test plugin.
 Author:
     Sam Gibson <sgibson@glasswallsolutions.com>
 """
+from os import scandir
 
 FILESIZE_UNITS_MAPPING = {
     "": 1000**0,
@@ -64,3 +65,12 @@ def filesize_str_to_bytes(size: str) -> int:
 
     # return the significand multiplied by it's looked-up power term
     return float(size_str) * FILESIZE_UNITS_MAPPING[unit_str]
+
+
+def scantree(path):
+    """Recursively yield DirEntry objects for given directory."""
+    for entry in scandir(path):
+        if entry.is_dir(follow_symlinks=False):
+            yield from scantree(entry.path)  # see below for Python 2.x
+        else:
+            yield entry

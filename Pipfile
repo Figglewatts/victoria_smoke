@@ -27,6 +27,8 @@ click = "*"
 marshmallow = "*"
 jinja2 = "*"
 faker = "==2.0.4"
+sremail = {index = "sre",version = "*"}
+pyyaml = "*"
 
 [requires]
 python_version = "3.7"
