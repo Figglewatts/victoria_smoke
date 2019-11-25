@@ -140,8 +140,15 @@ class AttachmentLibrary:
         Returns:
             AttachmentLibrary: The library, filtered by filesize.
         """
-        return self.filter_func(
-            lambda item: min_bytes <= item.size <= max_bytes)
+        if max_bytes == 0 and min_bytes == 0:
+            return self.filter_func(lambda item: True)
+        elif max_bytes == 0:
+            return self.filter_func(lambda item: item.size > min_bytes)
+        elif min_bytes == 0:
+            return self.filter_func(lambda item: item.size <= max_bytes)
+        else:
+            return self.filter_func(
+                lambda item: min_bytes <= item.size <= max_bytes)
 
     def random_choice(self, count: int,
                       seed: Union[int, None] = None) -> AttachmentLibrary:

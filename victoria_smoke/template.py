@@ -3,6 +3,7 @@ import functools
 import random
 import types
 from typing import List, Union, Iterable
+import uuid
 
 from faker import Faker
 from faker.providers import BaseProvider
@@ -103,7 +104,7 @@ def directory(library, directory: str) -> AttachmentLibrary:
 
 
 @template_env.filterfunc
-def filesize(library, maximum: str, minimum: str = "0") -> AttachmentLibrary:
+def filesize(library, maximum: str = "0", minimum: str = "0") -> AttachmentLibrary:
     """Filter an attachment library by file size."""
     if type(library) != AttachmentLibrary:
         raise TypeError(
@@ -134,4 +135,5 @@ def process(email_template: str, attachment_library: AttachmentLibrary) -> str:
     fake.add_provider(TextProvider)
     return template.render(library=attachment_library,
                            fake=fake,
-                           datetime=datetime)
+                           datetime=datetime,
+                           uuid=uuid)

@@ -1,4 +1,5 @@
 import builtins
+from collections import namedtuple
 import contextlib
 import io
 import os
@@ -7,6 +8,7 @@ import os.path
 import pytest
 
 from victoria_smoke.attachments import AttachmentLibrary, Attachment
+from victoria_smoke import util
 
 test_files = [
     f".{os.sep}root_file_1.txt", f".{os.sep}root_file_2.txt",
@@ -47,12 +49,20 @@ def mock_attachment_library(mock_open):
 
 @pytest.fixture
 def mock_os_funcs(monkeypatch):
-    def mock_walk(*args, **kwargs):
-        for d in test_files_dirs:
-            yield d, None, [
-                os.path.basename(fname) for fname in test_files
-                if fname.startswith(d)
-            ]
+    class MockDirEntry:
+        def __init__(self, path, size):
+            self.path = path
+            self.sz = size
+
+        def stat(self):
+            return namedtuple("stat_result", ["st_size"])(self.sz)
+
+        def is_file(self):
+            return True
+
+    def mock_scantree(*args, **kwargs):
+        for test_file in test_files:
+            yield MockDirEntry(test_file, mock_getsize(test_file))
 
     def mock_getsize(*args, **kwargs):
         if args[0] == f".{os.sep}big_file.txt":
@@ -63,8 +73,7 @@ def mock_os_funcs(monkeypatch):
     def mock_exists(path):
         return True
 
-    monkeypatch.setattr(os, "walk", mock_walk)
-    monkeypatch.setattr(os.path, "getsize", mock_getsize)
+    monkeypatch.setattr(util, "scantree", mock_scantree)
     monkeypatch.setattr(os.path, "exists", mock_exists)
 
 
@@ -79,47 +88,52 @@ def get_filenames(library: AttachmentLibrary):
 
 def test_create_library(library):
     assert library.index == [
-        Attachment(f".{os.sep}root_file_1.txt", 1000),
-        Attachment(f".{os.sep}root_file_2.txt", 1000),
-        Attachment(f".{os.sep}pdf_file.pdf", 1000),
-        Attachment(f".{os.sep}big_file.txt", 2000),
-        Attachment(f"subdir{os.sep}subfile_1.txt", 1000),
-        Attachment(f"subdir{os.sep}subfile_2.txt", 1000)
+        Attachment(os.path.normpath(f".{os.sep}root_file_1.txt"), 1000),
+        Attachment(os.path.normpath(f".{os.sep}root_file_2.txt"), 1000),
+        Attachment(os.path.normpath(f"subdir{os.sep}subfile_1.txt"), 1000),
+        Attachment(os.path.normpath(f"subdir{os.sep}subfile_2.txt"), 1000),
+        Attachment(os.path.normpath(f".{os.sep}pdf_file.pdf"), 1000),
+        Attachment(os.path.normpath(f".{os.sep}big_file.txt"), 2000)
     ]
 
 
 def test_get_filename(library):
     files = library.get_filename("root_file_1.txt")
-    assert get_filenames(files) == [f".{os.sep}root_file_1.txt"]
+    assert get_filenames(files) == [
+        os.path.normpath(f".{os.sep}root_file_1.txt")
+    ]
 
 
 def test_get_like(library):
     files = library.get_like("subfile")
     assert get_filenames(files) == [
-        f"subdir{os.sep}subfile_1.txt", f"subdir{os.sep}subfile_2.txt"
+        os.path.normpath(f"subdir{os.sep}subfile_1.txt"),
+        os.path.normpath(f"subdir{os.sep}subfile_2.txt")
     ]
 
 
 def test_get_extension(library):
     files = library.get_filetype("pdf")
-    assert get_filenames(files) == [f".{os.sep}pdf_file.pdf"]
+    assert get_filenames(files) == [os.path.normpath(f".{os.sep}pdf_file.pdf")]
 
 
 def test_get_directory(library):
     files = library.get_directory("subdir")
     assert get_filenames(files) == [
-        f"subdir{os.sep}subfile_1.txt", f"subdir{os.sep}subfile_2.txt"
+        os.path.normpath(f"subdir{os.sep}subfile_1.txt"),
+        os.path.normpath(f"subdir{os.sep}subfile_2.txt")
     ]
 
 
 def test_get_filesize(library):
     files = library.get_filesize(min_bytes=1500, max_bytes=2500)
-    assert get_filenames(files) == [f".{os.sep}big_file.txt"]
+    assert get_filenames(files) == [os.path.normpath(f".{os.sep}big_file.txt")]
 
 
 def test_random_choice(library):
     # seed is important here, as without it the test is nondeterministic
     files = library.random_choice(count=2, seed=1337)
     assert get_filenames(files) == [
-        f"subdir{os.sep}subfile_1.txt", f"subdir{os.sep}subfile_2.txt"
+        os.path.normpath(f".{os.sep}pdf_file.pdf"),
+        os.path.normpath(f".{os.sep}big_file.txt")
     ]
