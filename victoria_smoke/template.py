@@ -23,6 +23,7 @@ def create_environment() -> Environment:
     # so we can define filters using a decorator
     def filterfunc(target, func):
         target.filters[func.__name__] = func
+        return func
 
     env.filterfunc = types.MethodType(filterfunc, env)
 
@@ -104,7 +105,8 @@ def directory(library, directory: str) -> AttachmentLibrary:
 
 
 @template_env.filterfunc
-def filesize(library, maximum: str = "0", minimum: str = "0") -> AttachmentLibrary:
+def filesize(library, maximum: str = "0",
+             minimum: str = "0") -> AttachmentLibrary:
     """Filter an attachment library by file size."""
     if type(library) != AttachmentLibrary:
         raise TypeError(

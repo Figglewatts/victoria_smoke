@@ -125,9 +125,13 @@ def test_get_directory(library):
     ]
 
 
-def test_get_filesize(library):
-    files = library.get_filesize(min_bytes=1500, max_bytes=2500)
-    assert get_filenames(files) == [os.path.normpath(f".{os.sep}big_file.txt")]
+@pytest.mark.parametrize("min_bytes,max_bytes,expected",
+                         [(0, 0, len(test_files)), (1500, 0, 1),
+                          (0, 1500, len(test_files) - 1),
+                          (500, 2500, len(test_files))])
+def test_get_filesize(library, min_bytes, max_bytes, expected):
+    files = library.get_filesize(min_bytes=min_bytes, max_bytes=max_bytes)
+    assert len(get_filenames(files)) == expected
 
 
 def test_random_choice(library):
