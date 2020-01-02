@@ -11,7 +11,7 @@ setup(
     dependency_links=[],
     install_requires=["victoria", "click", "marshmallow"],
     name="victoria_smoke",
-    version="0.1.0",
+    version="#{TAG_NAME}#",
     description="Victoria plugin to perform smoke tests",
     author="Sam Gibson",
     author_email="sgibson@glasswallsolutions.com",
