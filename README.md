@@ -1,4 +1,9 @@
 # victoria_smoke
+
+**Note:** This repository is quite old, and was mainly used as an experiment into
+generating mail and fuzzing MIME. A lot of this code now exists in other
+Glasswall SRE projects in a more advanced form.
+
 This is the smoke testing plugin for Victoria.
 
 ## User guide
